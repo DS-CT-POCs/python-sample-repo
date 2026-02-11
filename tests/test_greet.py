@@ -23,3 +23,8 @@ def test_greet_default():
 
 def test_farewell():
     assert farewell("Alice") == "Goodbye, Alice!"
+
+
+def test_farewell_empty_name():
+    """When name is empty, farewell uses greet and returns 'Goodbye, World!'."""
+    assert farewell("") == "Goodbye, World!"

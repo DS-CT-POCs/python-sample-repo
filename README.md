@@ -17,7 +17,7 @@ MIT. See [LICENSE](LICENSE).
 ### `src/greet.py`
 
 - **`greet(name=None, salutation='Hello')`** — Returns a greeting string. If `name` is missing or empty, returns a "Hello, World!" style message.
-- **`farewell(name)`** — Returns a goodbye message (uses `greet` with `'Goodbye'`).
+- **`farewell(name)`** — Returns a goodbye message (uses `greet` with `'Goodbye'`). If `name` is missing or empty, behaves like `greet` and returns "Goodbye, World!".
 
 ### `src/utils.py`
 

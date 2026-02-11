@@ -1,9 +1,10 @@
 """
 Greeting utilities.
 """
+from typing import Optional
 
 
-def greet(name: str | None = None, salutation: str = "Hello") -> str:
+def greet(name: Optional[str] = None, salutation: str = "Hello") -> str:
     """
     Return a greeting for the given name.
     If name is missing or empty, returns a 'Hello, World!' style message.

@@ -12,6 +12,8 @@ def test_clamp():
     assert clamp(10, 0, 5) == 5
     assert clamp(-1, 0, 5) == 0
     assert clamp(3, 0, 5) == 3
+    assert clamp(0, 0, 5) == 0  # edge: value equals lower bound
+    assert clamp(5, 0, 5) == 5  # edge: value equals upper bound
 
 
 def test_sum_list():
