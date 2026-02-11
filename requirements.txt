@@ -1,0 +1,2 @@
+# Optional: for running tests with pytest
+pytest>=7.0.0
