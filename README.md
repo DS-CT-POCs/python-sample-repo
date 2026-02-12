@@ -510,3 +510,23 @@ For bug reports and feature requests related to YOLOv5, please visit [GitHub Iss
   <img src="https://github.com/ultralytics/assets/raw/main/social/logo-transparent.png" width="3%" alt="space">
   <a href="https://discord.com/invite/ultralytics"><img src="https://github.com/ultralytics/assets/raw/main/social/logo-social-discord.png" width="3%" alt="Ultralytics Discord"></a>
 </div>
+
+## 🧪 CodebaseRAG baseline questions
+
+The CodebaseRAG project uses this repository as a reference Python codebase for ingestion and query tests. Typical baseline questions the RAG agent should be able to answer after ingesting this repo include:
+
+- Where is the `detect.py` entry point located and which function does it call first?
+- How do I run inference on a single image using `detect.py` and where can I change the source path?
+- Where are model architectures (e.g. YOLOv5s, YOLOv5m) defined and how can I add a new one?
+- In which file is the **training loop** implemented (for `train.py`) and how can I change the number of epochs?
+- Where is the **data configuration** (datasets, labels) specified and how can I point training to a new dataset?
+- Which module defines image augmentations and how would I disable or modify one of them?
+- Where is **non‑max suppression (NMS)** implemented and how can I adjust its IoU/score thresholds?
+- Where are default **image size** and **batch size** configured for training or detection?
+- How can I add a new command‑line argument to `detect.py` and access its value in the code?
+- Where is the directory for saving detection outputs (`runs/detect/...`) defined and how can I change it?
+- Which script is responsible for model export (e.g. to ONNX/TensorRT) and where can I change export options?
+- Where are the YOLOv5 **loss functions** defined and how could I adjust a loss hyperparameter?
+- Where is the optimizer (e.g. SGD, Adam) configured for training and how can I switch optimizers?
+- Which files configure experiment logging/integrations (e.g. Weights & Biases, ClearML) and how can I enable/disable them?
+- Where are dataset loaders implemented and how can I modify the way images/labels are read from disk?
