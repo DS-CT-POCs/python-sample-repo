@@ -515,18 +515,36 @@ For bug reports and feature requests related to YOLOv5, please visit [GitHub Iss
 
 The CodebaseRAG project uses this repository as a reference Python codebase for ingestion and query tests. Typical baseline questions the RAG agent should be able to answer after ingesting this repo include:
 
-- Where is the `detect.py` entry point located and which function does it call first?
-- How do I run inference on a single image using `detect.py` and where can I change the source path?
-- Where are model architectures (e.g. YOLOv5s, YOLOv5m) defined and how can I add a new one?
-- In which file is the **training loop** implemented (for `train.py`) and how can I change the number of epochs?
-- Where is the **data configuration** (datasets, labels) specified and how can I point training to a new dataset?
-- Which module defines image augmentations and how would I disable or modify one of them?
-- Where is **non‑max suppression (NMS)** implemented and how can I adjust its IoU/score thresholds?
-- Where are default **image size** and **batch size** configured for training or detection?
-- How can I add a new command‑line argument to `detect.py` and access its value in the code?
-- Where is the directory for saving detection outputs (`runs/detect/...`) defined and how can I change it?
-- Which script is responsible for model export (e.g. to ONNX/TensorRT) and where can I change export options?
-- Where are the YOLOv5 **loss functions** defined and how could I adjust a loss hyperparameter?
-- Where is the optimizer (e.g. SGD, Adam) configured for training and how can I switch optimizers?
-- Which files configure experiment logging/integrations (e.g. Weights & Biases, ClearML) and how can I enable/disable them?
-- Where are dataset loaders implemented and how can I modify the way images/labels are read from disk?
+- Where is the `detect.py` entry point located, and which function does it call first to create the model and dataloader?
+- How do I run inference on a single image using `detect.py`, and where in the code can I change the default `--source` path?
+- Where are model architectures (e.g. YOLOv5s, YOLOv5m) defined, and how would I add a new custom model configuration?
+- In which file is the **training loop** for `train.py` implemented, and how can I change the number of epochs or early‑stopping behavior?
+- Where is the **data configuration** (datasets, labels) specified, and how can I point training to a new dataset YAML file?
+- Which module defines image augmentations, and how would you disable mosaic or add a new augmentation?
+- Where is **non‑max suppression (NMS)** implemented, and how can you adjust its IoU/score thresholds for detection?
+- Where are the default **image size** and **batch size** configured for training or detection, and how would you override them?
+- How can you add a new command‑line argument to `detect.py` (e.g. `--min-conf`), and where would you consume that argument in the code?
+- Where is the directory for saving detection outputs (`runs/detect/...`) defined, and how would you change it or add a timestamped subfolder?
+- Which script is responsible for model export (e.g. to ONNX/TensorRT), and how can you change export options such as opset or dynamic axes?
+- Where are the YOLOv5 **loss functions** defined, and how would you adjust a loss hyperparameter or add a new loss term?
+- Where is the optimizer (e.g. SGD, Adam) configured for training, and how can you switch optimizers or change learning‑rate schedules?
+- Which files configure experiment logging/integrations (e.g. Weights & Biases, ClearML), and how can you enable, disable, or customize them?
+- Where are dataset loaders implemented, and how can you modify the way images/labels are read from disk (e.g. custom annotation format)?
+
+### Baseline answers (for RAG comparison)
+
+- **detect.py entry point / first function**: `detect.py` at repo root. Entry: `if __name__ == "__main__": opt = parse_opt(); main(opt)`. `main(opt)` calls `run(**vars(opt))`. `run()` creates the model via `DetectMultiBackend(weights, ...)` and dataloader via `LoadImages(source, ...)` or `LoadStreams(source, ...)` etc., then iterates and runs inference.
+- **Run inference on single image / change default --source**: `python detect.py --weights yolov5s.pt --source img.jpg`. Default source: in `run()` signature `source=ROOT / "data/images"` and in `parse_opt()` `parser.add_argument("--source", ..., default=ROOT / "data/images")`. Change the default in either place.
+- **Model architectures (YOLOv5s/m) / add custom**: Defined in `models/*.yaml` (e.g. `yolov5s.yaml`, `yolov5m.yaml`). Add a new config: create `models/yolov5custom.yaml` with nc, depth_multiple, width_multiple, backbone/head, and use `--cfg yolov5custom.yaml` with `train.py` or load via `DetectMultiBackend`.
+- **Training loop / epochs or early stopping**: `train.py` — `main(opt)` calls `train(opt.hyp, opt, device, callbacks)`; the training loop is inside `train(hyp, opt, device, callbacks)` starting around line 105. Epochs: `parse_opt()` has `--epochs` (default 300). Early stopping: check if implemented in `train()` (e.g. patience-based); otherwise add logic after validation to stop when metric stops improving.
+- **Data configuration (datasets, labels) / new dataset YAML**: Specified via `--data` (e.g. `data/coco128.yaml`). In `train.py` and `detect.py`, `opt.data` is the path. Point to a new dataset by passing `--data path/to/my_data.yaml`; the YAML should define train/val paths, nc, class names.
+- **Image augmentations / disable mosaic or add new**: Augmentations in `utils/augmentations.py`; mosaic and load logic in `utils/dataloaders.py` (e.g. `LoadImagesAndLabels` with `self.mosaic = self.augment and not self.rect`). Disable mosaic: set `hyp['mosaic'] = 0` in the hyperparameter dict or use a hyp YAML with `mosaic: 0`. Add a new augmentation: add a function in `utils/augmentations.py` and call it from the dataloader or train pipeline.
+- **NMS implementation / IoU and score thresholds**: `utils/general.py` — function `non_max_suppression(prediction, conf_thres=0.25, iou_thres=0.45, ...)`. Called from `detect.py` and `val.py` with `conf_thres` and `iou_thres`. Adjust by passing different `conf_thres`/`iou_thres` at the call site or via `--conf-thres` and `--iou-thres` in `detect.py` `parse_opt()`.
+- **Default image size and batch size / override**: Detection: `detect.py` `run()` has `imgsz=(640, 640)`; `parse_opt()` has `--imgsz` (default `[640]`). Training: `train.py` `parse_opt()` has `--batch-size` and `--imgsz`. Override via CLI: `--imgsz 640` (or 320, etc.) and `--batch-size 16`.
+- **Add CLI argument (e.g. --min-conf) / where to consume**: In `detect.py`, add in `parse_opt()`: `parser.add_argument("--min-conf", type=float, default=0.25, help="min confidence")`. Consume in `run()` signature (add parameter) and use inside the loop (e.g. pass to `non_max_suppression` or filter results).
+- **Detection output directory (runs/detect) / change or timestamp**: `detect.py` — `run()` has `project=ROOT / "runs/detect"`, `name="exp"`, and `save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)`. Change: pass `--project` and `--name`; for a timestamped subfolder, use a custom `name` (e.g. from `datetime`) or modify `increment_path` usage to include timestamp.
+- **Model export (ONNX/TensorRT) / change opset or dynamic**: `export.py` — entry `main(parse_opt())`; `run()` performs export. Export options (opset, dynamic axes, etc.) are set in the export helpers and in `parse_opt()` (e.g. `--opset`, `--dynamic`). Change: add or edit `parse_opt()` arguments and pass them into the ONNX/TensorRT export call (e.g. `torch.onnx.export(..., op_set_version=..., dynamic_axes=...)`).
+- **Loss functions / adjust or add term**: `utils/loss.py` — `ComputeLoss` and helpers (e.g. `BCEBlurWithLogitsLoss`, `smooth_BCE`). Hyperparameters often come from the hyp dict. Adjust: change default args in the loss class constructors or in the hyp YAML; add a new loss term in `ComputeLoss.forward()` and add its weight to hyp.
+- **Optimizer (SGD, Adam) / switch or LR schedule**: `utils/torch_utils.py` — `smart_optimizer(model, name="Adam", lr=0.001, ...)` supports Adam, AdamW, RMSprop, SGD. Used from `train.py`. Switch: pass `--optimizer` (if exposed) or change the `name` argument where `smart_optimizer` is called; LR schedule is set in `train()` (e.g. cosine, one-cycle) — modify that block to change schedule.
+- **Experiment logging (W&B, ClearML) / enable or customize**: `utils/loggers/` (e.g. `wandb/`, `clearml/`) and integration in `train.py` via callbacks. Enable/disable: usually via env vars or `train.py` flags (e.g. `--project`, `--name`); customize in the logger modules under `utils/loggers/` (e.g. `wandb_utils.py`).
+- **Dataset loaders / custom annotation format**: Implemented in `utils/dataloaders.py` — `LoadImages`, `LoadStreams`, `LoadImagesAndLabels`, etc. Images/labels paths come from the dataset YAML. To support a custom annotation format: subclass or copy a loader and override the label-reading logic (e.g. parse custom XML/JSON) and pass the new loader to the training or validation pipeline.
