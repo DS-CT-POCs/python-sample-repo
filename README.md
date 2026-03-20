@@ -1,4 +1,4 @@
-## 🚀 YOLO11: The Next Evolution
+
 
 We are excited to announce the launch of **Ultralytics YOLO11** 🚀, the latest advancement in our state-of-the-art (SOTA) vision models! Available now at the [Ultralytics YOLO GitHub repository](https://github.com/ultralytics/ultralytics), YOLO11 builds on our legacy of speed, precision, and ease of use. Whether you're tackling [object detection](https://docs.ultralytics.com/tasks/detect/), [instance segmentation](https://docs.ultralytics.com/tasks/segment/), [pose estimation](https://docs.ultralytics.com/tasks/pose/), [image classification](https://docs.ultralytics.com/tasks/classify/), or [oriented object detection (OBB)](https://docs.ultralytics.com/tasks/obb/), YOLO11 delivers the performance and versatility needed to excel in diverse applications.
 
