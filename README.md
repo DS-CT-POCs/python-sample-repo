@@ -1,5 +1,3 @@
-
-
 ### Baseline answers (for RAG comparison)
 
 - **detect.py entry point / first function**: `detect.py` at repo root. Entry: `if __name__ == "__main__": opt = parse_opt(); main(opt)`. `main(opt)` calls `run(**vars(opt))`. `run()` creates the model via `DetectMultiBackend(weights, ...)` and dataloader via `LoadImages(source, ...)` or `LoadStreams(source, ...)` etc., then iterates and runs inference.
